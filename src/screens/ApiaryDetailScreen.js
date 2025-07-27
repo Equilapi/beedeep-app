@@ -9,9 +9,11 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
+
 const ApiaryDetailScreen = ({ route, navigation }) => {
   const [activeFilter, setActiveFilter] = useState('Todas');
   const [isApiaryInfoExpanded, setIsApiaryInfoExpanded] = useState(false);
+  const [isMapExpanded, setIsMapExpanded] = useState(false);
   
   console.log('ApiaryDetailScreen - route.params:', route.params);
   
@@ -20,6 +22,7 @@ const ApiaryDetailScreen = ({ route, navigation }) => {
     console.log('No route params found, using default apiary');
   }
   
+  const apiaryFromParams = route?.params?.apiary;
   const { apiary } = route?.params || {
     id: 1,
     name: 'Main Apiary',
@@ -28,6 +31,15 @@ const ApiaryDetailScreen = ({ route, navigation }) => {
     status: 'Active',
     lastInspection: '2024-01-15',
     honeyProduction: '45 kg',
+    latitude: 40.7128,
+    longitude: -74.0060,
+  };
+
+  // Asegurar que las coordenadas estén definidas
+  const apiaryWithCoords = {
+    ...apiary,
+    latitude: apiary.latitude || 40.7128,
+    longitude: apiary.longitude || -74.0060,
   };
 
   // Datos de las colmenas
@@ -94,8 +106,8 @@ const ApiaryDetailScreen = ({ route, navigation }) => {
           <Ionicons name="arrow-back" size={24} color="#fff" />
         </TouchableOpacity>
         <View style={styles.headerContent}>
-          <Text style={styles.headerTitle}>{apiary.name}</Text>
-          <Text style={styles.headerSubtitle}>{apiary.location}</Text>
+          <Text style={styles.headerTitle}>{apiaryWithCoords.name}</Text>
+          <Text style={styles.headerSubtitle}>{apiaryWithCoords.location}</Text>
         </View>
       </View>
 
@@ -120,32 +132,67 @@ const ApiaryDetailScreen = ({ route, navigation }) => {
             <View style={styles.collapsibleContent}>
               <View style={styles.infoRow}>
                 <Text style={styles.infoLabel}>Apiario:</Text>
-                <Text style={styles.infoValue}>{apiary.name}</Text>
+                <Text style={styles.infoValue}>{apiaryWithCoords.name}</Text>
               </View>
               
               <View style={styles.infoRow}>
                 <Text style={styles.infoLabel}>Ubicación:</Text>
-                <Text style={styles.infoValue}>{apiary.location}</Text>
+                <Text style={styles.infoValue}>{apiaryWithCoords.location}</Text>
               </View>
               
               <View style={styles.infoRow}>
                 <Text style={styles.infoLabel}>Colmenas:</Text>
-                <Text style={styles.infoValue}>{apiary.hivesCount}</Text>
+                <Text style={styles.infoValue}>{apiaryWithCoords.hivesCount}</Text>
               </View>
               
               <View style={styles.infoRow}>
                 <Text style={styles.infoLabel}>Estado:</Text>
-                <Text style={styles.infoValue}>{apiary.status}</Text>
+                <Text style={styles.infoValue}>{apiaryWithCoords.status}</Text>
               </View>
               
               <View style={styles.infoRow}>
                 <Text style={styles.infoLabel}>Última inspección:</Text>
-                <Text style={styles.infoValue}>{apiary.lastInspection}</Text>
+                <Text style={styles.infoValue}>{apiaryWithCoords.lastInspection}</Text>
               </View>
               
               <View style={styles.infoRow}>
                 <Text style={styles.infoLabel}>Producción de miel:</Text>
-                <Text style={styles.infoValue}>{apiary.honeyProduction}</Text>
+                <Text style={styles.infoValue}>{apiaryWithCoords.honeyProduction}</Text>
+              </View>
+            </View>
+          )}
+        </View>
+        
+        {/* Sección del mapa */}
+        <View style={styles.collapsibleSection}>
+          <TouchableOpacity 
+            style={styles.collapsibleHeader}
+            onPress={() => setIsMapExpanded(!isMapExpanded)}
+          >
+            <Text style={styles.collapsibleTitle}>Ubicación en el Mapa</Text>
+            <Ionicons 
+              name={isMapExpanded ? "chevron-up" : "chevron-down"} 
+              size={20} 
+              color="#7f8c8d" 
+            />
+          </TouchableOpacity>
+          
+          {isMapExpanded && (
+            <View style={styles.mapContainer}>
+              <View style={styles.mapPlaceholder}>
+                <Ionicons name="map" size={48} color="#f4511e" />
+                <Text style={styles.mapPlaceholderText}>Mapa de Ubicación</Text>
+                <Text style={styles.mapPlaceholderSubtext}>
+                  {apiaryWithCoords.name} - {apiaryWithCoords.location}
+                </Text>
+              </View>
+              <View style={styles.mapInfo}>
+                <Text style={styles.mapInfoText}>
+                  Coordenadas: {apiaryWithCoords.latitude.toFixed(4)}, {apiaryWithCoords.longitude.toFixed(4)}
+                </Text>
+                <Text style={styles.mapInfoText}>
+                  Para ver el mapa completo, abre en Google Maps
+                </Text>
               </View>
             </View>
           )}
@@ -235,7 +282,7 @@ const ApiaryDetailScreen = ({ route, navigation }) => {
             <TouchableOpacity 
               key={hive.id} 
               style={styles.hiveCard}
-              onPress={() => navigation.navigate('HiveDetail', { hive, apiary })}
+              onPress={() => navigation.navigate('HiveDetail', { hive, apiary: apiaryWithCoords })}
             >
               <View style={styles.hiveHeader}>
                 <Text style={styles.hiveName}>{hive.name}</Text>
@@ -504,6 +551,45 @@ const styles = StyleSheet.create({
   filterTabsContainer: {
     marginBottom: 20,
     width: '100%',
+  },
+  mapContainer: {
+    marginTop: 10,
+    borderRadius: 10,
+    overflow: 'hidden',
+  },
+  mapPlaceholder: {
+    height: 200,
+    backgroundColor: '#f8f9fa',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: '#e0e0e0',
+    borderStyle: 'dashed',
+    borderRadius: 10,
+  },
+  mapPlaceholderText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#2c3e50',
+    marginTop: 10,
+    marginBottom: 5,
+  },
+  mapPlaceholderSubtext: {
+    fontSize: 14,
+    color: '#7f8c8d',
+    textAlign: 'center',
+  },
+  mapInfo: {
+    backgroundColor: '#f8f9fa',
+    padding: 10,
+    borderTopWidth: 1,
+    borderTopColor: '#e0e0e0',
+  },
+  mapInfoText: {
+    fontSize: 14,
+    color: '#7f8c8d',
+    textAlign: 'center',
+    fontStyle: 'italic',
   },
 });
 

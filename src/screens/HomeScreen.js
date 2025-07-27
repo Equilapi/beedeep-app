@@ -91,7 +91,7 @@ const HomeScreen = ({ navigation }) => {
       <View style={styles.statsSection}>
         <View style={styles.statCard}>
           <View style={styles.statIcon}>
-            <Ionicons name="bee" size={32} color="#f4511e" />
+            <Ionicons name="leaf" size={32} color="#f4511e" />
           </View>
           <Text style={styles.statNumber}>{dashboardData.totalHives}</Text>
           <Text style={styles.statLabel}>Total Colmenas</Text>
@@ -172,7 +172,7 @@ const HomeScreen = ({ navigation }) => {
               }
             }}
           >
-            <Ionicons name="bee" size={24} color="#fff" />
+            <Ionicons name="leaf" size={24} color="#fff" />
             <Text style={styles.actionButtonText}>Ver Apiarios</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.actionButton}>
