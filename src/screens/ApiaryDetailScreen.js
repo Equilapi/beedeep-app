@@ -8,11 +8,12 @@ import {
   ScrollView,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import MapView, { Marker } from 'react-native-maps';
 
 
 const ApiaryDetailScreen = ({ route, navigation }) => {
   const [activeFilter, setActiveFilter] = useState('Todas');
-  const [isApiaryInfoExpanded, setIsApiaryInfoExpanded] = useState(false);
+  const [isApiaryInfoExpanded, setIsApiaryInfoExpanded] = useState(true);
   const [isMapExpanded, setIsMapExpanded] = useState(false);
   
   console.log('ApiaryDetailScreen - route.params:', route.params);
@@ -22,7 +23,6 @@ const ApiaryDetailScreen = ({ route, navigation }) => {
     console.log('No route params found, using default apiary');
   }
   
-  const apiaryFromParams = route?.params?.apiary;
   const { apiary } = route?.params || {
     id: 1,
     name: 'Main Apiary',
@@ -179,19 +179,35 @@ const ApiaryDetailScreen = ({ route, navigation }) => {
           
           {isMapExpanded && (
             <View style={styles.mapContainer}>
-              <View style={styles.mapPlaceholder}>
-                <Ionicons name="map" size={48} color="#f4511e" />
-                <Text style={styles.mapPlaceholderText}>Mapa de Ubicación</Text>
-                <Text style={styles.mapPlaceholderSubtext}>
-                  {apiaryWithCoords.name} - {apiaryWithCoords.location}
-                </Text>
-              </View>
+              <MapView
+                style={styles.map}
+                initialRegion={{
+                  latitude: apiaryWithCoords.latitude,
+                  longitude: apiaryWithCoords.longitude,
+                  latitudeDelta: 0.01,
+                  longitudeDelta: 0.01,
+                }}
+                showsUserLocation={true}
+                showsMyLocationButton={true}
+                showsCompass={true}
+                showsScale={true}
+              >
+                <Marker
+                  coordinate={{
+                    latitude: apiaryWithCoords.latitude,
+                    longitude: apiaryWithCoords.longitude,
+                  }}
+                  title={apiaryWithCoords.name}
+                  description={apiaryWithCoords.location}
+                  pinColor="#f4511e"
+                />
+              </MapView>
               <View style={styles.mapInfo}>
                 <Text style={styles.mapInfoText}>
-                  Coordenadas: {apiaryWithCoords.latitude.toFixed(4)}, {apiaryWithCoords.longitude.toFixed(4)}
+                  {apiaryWithCoords.name} - {apiaryWithCoords.location}
                 </Text>
                 <Text style={styles.mapInfoText}>
-                  Para ver el mapa completo, abre en Google Maps
+                  Coordenadas: {apiaryWithCoords.latitude.toFixed(4)}, {apiaryWithCoords.longitude.toFixed(4)}
                 </Text>
               </View>
             </View>
@@ -557,31 +573,13 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     overflow: 'hidden',
   },
-  mapPlaceholder: {
-    height: 200,
-    backgroundColor: '#f8f9fa',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: '#e0e0e0',
-    borderStyle: 'dashed',
-    borderRadius: 10,
-  },
-  mapPlaceholderText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#2c3e50',
-    marginTop: 10,
-    marginBottom: 5,
-  },
-  mapPlaceholderSubtext: {
-    fontSize: 14,
-    color: '#7f8c8d',
-    textAlign: 'center',
+  map: {
+    height: 250,
+    width: '100%',
   },
   mapInfo: {
     backgroundColor: '#f8f9fa',
-    padding: 10,
+    padding: 15,
     borderTopWidth: 1,
     borderTopColor: '#e0e0e0',
   },
@@ -589,7 +587,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#7f8c8d',
     textAlign: 'center',
-    fontStyle: 'italic',
+    marginBottom: 5,
   },
 });
 

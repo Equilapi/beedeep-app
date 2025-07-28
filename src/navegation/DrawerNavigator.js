@@ -1,6 +1,7 @@
 import React from 'react';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { Text } from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 // Importar las pantallas
 import HomeScreen from '../screens/HomeScreen';
@@ -11,7 +12,6 @@ import HarvestScreen from '../screens/HarvestScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import CustomDrawerContent from '../components/CustomDrawerContent';
-import DrawerIcons from '../components/DrawerIcons';
 
 const Drawer = createDrawerNavigator();
 
@@ -43,7 +43,7 @@ const DrawerNavigator = ({ onLogout }) => {
             title: 'Inicio',
             drawerLabel: 'Inicio',
             drawerIcon: ({ color, size }) => (
-              <DrawerIcons.Home color={color} size={size} />
+              <Icon name="home" color={color} size={size} />
             ),
           }}
         />
@@ -54,7 +54,7 @@ const DrawerNavigator = ({ onLogout }) => {
             title: 'Apiarios',
             drawerLabel: 'Apiarios',
             drawerIcon: ({ color, size }) => (
-              <DrawerIcons.Apiaries color={color} size={size} />
+              <Icon name="hive" color={color} size={size} />
             ),
           }}
         />
@@ -65,7 +65,7 @@ const DrawerNavigator = ({ onLogout }) => {
             title: 'Cosechas',
             drawerLabel: 'Cosechas',
             drawerIcon: ({ color, size }) => (
-              <DrawerIcons.Harvest color={color} size={size} />
+              <Icon name="local-florist" color={color} size={size} />
             ),
           }}
         />
@@ -93,7 +93,7 @@ const DrawerNavigator = ({ onLogout }) => {
             title: 'Configuración',
             drawerLabel: 'Configuración',
             drawerIcon: ({ color, size }) => (
-              <DrawerIcons.Settings color={color} size={size} />
+              <Icon name="settings" color={color} size={size} />
             ),
           }}
         >
@@ -106,7 +106,7 @@ const DrawerNavigator = ({ onLogout }) => {
             title: 'Mi Perfil',
             drawerLabel: 'Mi Perfil',
             drawerIcon: ({ color, size }) => (
-              <DrawerIcons.Profile color={color} size={size} />
+              <Icon name="person" color={color} size={size} />
             ),
           }}
         />
