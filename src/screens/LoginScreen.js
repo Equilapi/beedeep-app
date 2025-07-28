@@ -11,8 +11,15 @@ import {
   ScrollView,
   Alert,
 } from 'react-native';
+import * as AuthSession from 'expo-auth-session';
+import * as WebBrowser from 'expo-web-browser';
 import Logo from '../components/Logo';
 import PasswordInput from '../components/PasswordInput';
+import GoogleIcon from '../components/GoogleIcon';
+import { GOOGLE_CONFIG } from '../config/googleAuth';
+
+// Configurar WebBrowser para el flujo de autenticación
+WebBrowser.maybeCompleteAuthSession();
 
 const LoginScreen = ({ navigation, onLogin }) => {
   const [formData, setFormData] = useState({
@@ -22,6 +29,54 @@ const LoginScreen = ({ navigation, onLogin }) => {
 
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+
+  // Configuración para Google OAuth
+  const googleConfig = {
+    clientId: GOOGLE_CONFIG.CLIENT_ID,
+    scopes: GOOGLE_CONFIG.SCOPES,
+    redirectUri: AuthSession.makeRedirectUri({
+      scheme: 'beedeep-app',
+    }),
+  };
+
+  const [request, response, promptAsync] = AuthSession.useAuthRequest(googleConfig);
+
+  // Manejar respuesta de Google Sign-In
+  React.useEffect(() => {
+    if (response?.type === 'success') {
+      const { authentication } = response;
+      handleGoogleLoginSuccess(authentication);
+    }
+  }, [response]);
+
+  const handleGoogleLoginSuccess = async (authentication) => {
+    try {
+      // Aquí puedes hacer una llamada a tu backend para verificar el token
+      // Por ahora simulamos el login exitoso
+      const mockUserData = {
+        email: 'usuario@gmail.com', // Esto vendría del token de Google
+        name: 'Usuario Google',
+        provider: 'google',
+      };
+      
+      onLogin(mockUserData);
+    } catch (error) {
+      Alert.alert('Error', 'Error al iniciar sesión con Google. Inténtalo de nuevo.');
+    } finally {
+      setIsGoogleLoading(false);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    setIsGoogleLoading(true);
+    try {
+      await promptAsync();
+    } catch (error) {
+      Alert.alert('Error', 'Error al iniciar sesión con Google. Inténtalo de nuevo.');
+      setIsGoogleLoading(false);
+    }
+  };
 
   const validateForm = () => {
     const newErrors = {};
@@ -133,6 +188,27 @@ const LoginScreen = ({ navigation, onLogin }) => {
           >
             <Text style={styles.forgotPasswordText}>¿Olvidaste tu contraseña?</Text>
           </TouchableOpacity>
+
+          {/* Separador */}
+          <View style={styles.separatorContainer}>
+            <View style={styles.separatorLine} />
+            <Text style={styles.separatorText}>o</Text>
+            <View style={styles.separatorLine} />
+          </View>
+
+          {/* Botón de Google Sign-In */}
+          <TouchableOpacity 
+            style={[styles.googleButton, isGoogleLoading && styles.googleButtonDisabled]}
+            onPress={handleGoogleLogin}
+            disabled={isGoogleLoading}
+          >
+            <View style={styles.googleButtonContent}>
+              <GoogleIcon size={20} />
+              <Text style={styles.googleButtonText}>
+                {isGoogleLoading ? 'Conectando...' : 'Continuar con Google'}
+              </Text>
+            </View>
+          </TouchableOpacity>
         </View>
 
         <View style={styles.footer}>
@@ -241,6 +317,44 @@ const styles = StyleSheet.create({
   },
   linkText: {
     color: '#f4511e',
+    fontWeight: '600',
+  },
+  separatorContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 20,
+  },
+  separatorLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: '#e9ecef',
+  },
+  separatorText: {
+    marginHorizontal: 15,
+    color: '#7f8c8d',
+    fontSize: 14,
+  },
+  googleButton: {
+    borderWidth: 1,
+    borderColor: '#e9ecef',
+    borderRadius: 12,
+    padding: 16,
+    backgroundColor: '#ffffff',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  googleButtonDisabled: {
+    opacity: 0.6,
+  },
+  googleButtonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+  },
+  googleButtonText: {
+    color: '#2c3e50',
+    fontSize: 16,
     fontWeight: '600',
   },
 });
